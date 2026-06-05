@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Blox Fruits PvP — Tournoi Esport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;--bg2:#0d0d1e;--bg3:#11112a;--bg4:#17173a;
+  --border:#2a2a55;--border-glow:#5b21b6;
+  --purple:#7c3aed;--purple-light:#a78bfa;--purple-dim:#4c1d95;
+  --text:#e8e8ff;--text-muted:#6b6b9a;--text-dim:#9090c0;
+  --neon:#c084fc;--success:#34d399;--danger:#f87171;--warn:#fbbf24;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(124,58,237,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(167,139,250,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* NAV */
+nav{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(13,13,30,.9);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.nav-brand{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase}
+.nav-brand span{color:var(--neon)}
+.nav-links{display:flex;gap:8px}
+.nav-btn{padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.nav-btn:hover{border-color:var(--purple);color:var(--purple-light)}
+.nav-btn.active{background:var(--purple-dim);border-color:var(--purple);color:var(--purple-light)}
+
+/* HEADER */
+header{width:100%;text-align:center;padding:40px 20px 28px;position:relative;z-index:1}
+.logo-tag{display:inline-block;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--purple-light);border:1px solid var(--purple-dim);padding:4px 14px;border-radius:4px;margin-bottom:14px;background:rgba(76,29,149,.15)}
+h1{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,8vw,68px);font-weight:700;line-height:1;letter-spacing:4px;text-transform:uppercase;color:#fff}
+h1 .accent{color:var(--neon)}
+.header-sub{font-size:12px;color:var(--text-muted);letter-spacing:3px;text-transform:uppercase;margin-top:8px}
+.neon-line{width:100%;height:1px;background:linear-gradient(90deg,transparent 0%,var(--purple) 30%,var(--neon) 50%,var(--purple) 70%,transparent 100%);opacity:.6}
+
+/* VIEWS */
+.view{display:none;width:100%;max-width:600px;padding:32px 20px 60px;position:relative;z-index:1;animation:fadeIn .3s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.view-full{max-width:960px}
+
+/* PROGRESS */
+.progress-wrap{display:flex;align-items:center;margin-bottom:32px}
+.p-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.p-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--text-muted);transition:all .3s;z-index:1}
+.p-dot.active{border-color:var(--purple);background:var(--purple-dim);color:var(--neon);box-shadow:0 0 12px rgba(124,58,237,.4)}
+.p-dot.done{border-color:var(--success);background:rgba(52,211,153,.1);color:var(--success)}
+.p-label{font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+.p-label.active{color:var(--purple-light)}
+.p-line{flex:1;height:1px;background:var(--border);margin-bottom:20px;transition:background .3s}
+.p-line.done{background:var(--success);opacity:.4}
+
+/* FORM */
+.page-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:4px}
+.page-desc{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.form-group{margin-bottom:18px}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+input[type=text],input[type=email],input[type=password],select{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b9a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+select option,select optgroup{background:#11112a;color:var(--text)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.err{font-size:12px;color:var(--danger);margin-top:4px;display:none}
+.err.show{display:block}
+
+/* BUILD CARDS */
+.build-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;transition:border-color .2s}
+.build-card:focus-within{border-color:var(--purple-dim)}
+.build-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.build-icon{width:30px;height:30px;background:rgba(124,58,237,.15);border:1px solid var(--purple-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--neon);font-size:15px}
+.build-card-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple-light)}
+.build-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(76,29,149,.3);color:var(--text-muted);border:1px solid var(--purple-dim);letter-spacing:1px}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:10px}
+.btn-primary{flex:1;padding:12px 18px;background:var(--purple);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .1s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-primary:hover{background:#6d28d9;box-shadow:0 0 18px rgba(124,58,237,.35)}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{padding:12px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s;display:flex;align-items:center;gap:6px}
+.btn-ghost:hover{border-color:var(--purple);color:var(--purple-light)}
+.btn-danger{padding:8px 14px;background:transparent;border:1px solid rgba(248,113,113,.3);border-radius:6px;color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:rgba(248,113,113,.1);border-color:var(--danger)}
+
+/* CONFIRM */
+.confirm-hero{text-align:center;padding:16px 0 24px}
+.confirm-check{width:68px;height:68px;border-radius:50%;background:rgba(52,211,153,.1);border:2px solid rgba(52,211,153,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;color:var(--success)}
+.confirm-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff}
+.confirm-sub{font-size:13px;color:var(--text-muted);margin-top:5px}
+.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.conf-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px}
+.conf-key{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.conf-val{font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.15);border:1px solid var(--purple-dim);color:var(--purple-light);font-size:12px;letter-spacing:1px;padding:6px 14px;border-radius:6px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--purple-light);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ===== BRACKET VIEW (public) ===== */
+.bracket-info{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;text-align:center}
+.bracket-info-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple-light);margin-bottom:6px}
+.bracket-wrap{overflow-x:auto;padding-bottom:12px}
+.bracket-stage{display:flex;gap:0;align-items:stretch}
+.bracket-round{display:flex;flex-direction:column;min-width:200px;padding:0 16px}
+.bracket-round-title{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-align:center;margin-bottom:12px;padding:6px;border-bottom:1px solid var(--border)}
+.bracket-matches{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:12px}
+.match-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;transition:border-color .2s}
+.match-card:hover{border-color:var(--purple-dim)}
+.match-slot{padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:13px;border-bottom:1px solid var(--border);cursor:default}
+.match-slot:last-child{border-bottom:none}
+.match-slot.winner{background:rgba(52,211,153,.06);color:var(--success)}
+.match-slot.empty{color:var(--text-muted);font-style:italic;font-size:12px}
+.match-num{font-size:10px;color:var(--text-muted);position:absolute;top:4px;right:6px;letter-spacing:1px}
+.slot-avatar{width:22px;height:22px;border-radius:50%;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--neon);flex-shrink:0}
+.connector{width:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* face to face card */
+.faceoff-wrap{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-top:20px}
+.faceoff-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.faceoff-card.player1{border-color:var(--purple-dim)}
+.faceoff-card.player2{border-color:#1d4ed8}
+.faceoff-name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px}
+.faceoff-sub{font-size:12px;color:var(--text-muted);margin:4px 0 10px}
+.faceoff-build{display:flex;flex-direction:column;gap:6px}
+.faceoff-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 8px;background:var(--bg3);border-radius:5px}
+.faceoff-row span:first-child{color:var(--text-muted)}
+.faceoff-row span:last-child{color:var(--text);font-weight:600}
+.vs-badge{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--neon);text-align:center}
+
+/* ===== ADMIN PANEL ===== */
+.admin-login{max-width:360px;margin:0 auto}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.admin-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff}
+.admin-badge{font-size:10px;padding:3px 10px;border-radius:4px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--warn);letter-spacing:1px}
+.participants-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.participants-table th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:600}
+.participants-table td{padding:10px 12px;border-bottom:1px solid rgba(42,42,85,.5);color:var(--text);vertical-align:middle}
+.participants-table tr:hover td{background:rgba(124,58,237,.04)}
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(76,29,149,.3);border:1px solid var(--purple-dim);color:var(--purple-light);white-space:nowrap}
+.pill.green{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:var(--success)}
+.section-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+.section-block-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple-light);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* BRACKET ADMIN EDITOR */
+.bracket-editor{overflow-x:auto;padding-bottom:16px}
+.admin-round{display:inline-flex;flex-direction:column;min-width:220px;margin-right:20px;vertical-align:top}
+.admin-round-title{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-align:center;margin-bottom:10px;padding:5px;border-bottom:1px solid var(--border)}
+.admin-match{background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.admin-slot{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border)}
+.admin-slot:last-child{border-bottom:none}
+.admin-slot select{flex:1;padding:6px 10px;font-size:12px;background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Exo 2',sans-serif;cursor:pointer}
+.admin-slot select:focus{border-color:var(--purple);outline:none}
+.slot-label{font-size:10px;color:var(--text-muted);letter-spacing:1px;min-width:14px}
+.win-btn{padding:4px 8px;font-size:10px;background:transparent;border:1px solid rgba(52,211,153,.3);border-radius:4px;color:var(--success);cursor:pointer;letter-spacing:1px;font-family:'Rajdhani',sans-serif;transition:all .2s;white-space:nowrap}
+.win-btn.selected{background:rgba(52,211,153,.15);border-color:var(--success)}
+.win-btn:hover{background:rgba(52,211,153,.1)}
+.add-round-btn{padding:8px 16px;background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;margin-right:12px}
+.add-round-btn:hover{border-color:var(--purple);color:var(--purple-light)}
+.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.stat-num{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--neon)}
+.stat-lbl{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.export-btn{padding:8px 16px;background:transparent;border:1px solid rgba(52,211,153,.3);border-radius:6px;color:var(--success);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.export-btn:hover{background:rgba(52,211,153,.1)}
+
+footer{width:100%;text-align:center;padding:20px;font-size:11px;color:var(--text-muted);letter-spacing:1px;position:relative;z-index:1}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Blox <span>Fruits</span> PvP</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="switchView('view-register')"><i class="ti ti-user-plus"></i> Inscription</button>
+    <button class="nav-btn" onclick="switchView('view-bracket')"><i class="ti ti-tournament"></i> Bracket</button>
+    <button class="nav-btn" id="admin-nav-btn" onclick="switchView('view-admin')"><i class="ti ti-lock"></i> Admin</button>
+  </div>
+</nav>
+
+<header>
+  <div class="logo-tag">Esport Tournament 2025</div>
+  <h1>Blox <span class="accent">Fruits</span></h1>
+  <p class="header-sub">PvP Team Tournament — Inscription officielle</p>
+</header>
+<div class="neon-line"></div>
+
+<!-- ===== VIEW: INSCRIPTION ===== -->
+<div class="view active" id="view-register">
+
+  <div class="progress-wrap">
+    <div class="p-step"><div class="p-dot active" id="pd1">1</div><div class="p-label active" id="pl1">Compte</div></div>
+    <div class="p-line" id="pline1"></div>
+    <div class="p-step"><div class="p-dot" id="pd2">2</div><div class="p-label" id="pl2">Équipe</div></div>
+    <div class="p-line" id="pline2"></div>
+    <div class="p-step"><div class="p-dot" id="pd3">3</div><div class="p-label" id="pl3">Build</div></div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="page active" id="page-login">
+    <div class="page-title">Créer un compte</div>
+    <p class="page-desc">Remplis tes informations pour t'inscrire au tournoi.</p>
+    <div class="form-group">
+      <label>Pseudo / Username</label>
+      <input type="text" id="username" placeholder="NoobMaster69"/>
+      <div class="err" id="err-username">Entrez votre pseudo.</div>
+    </div>
+    <div class="form-group">
+      <label>Adresse email</label>
+      <input type="email" id="email" placeholder="joueur@example.com"/>
+      <div class="err" id="err-email">Adresse email invalide.</div>
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="password" placeholder="••••••••"/>
+      <div class="err" id="err-password">Minimum 6 caractères requis.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goStep2()">Continuer <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="page" id="page-info">
+    <div class="page-title">Informations équipe</div>
+    <p class="page-desc">Configure ta région, ton bounty et ton binôme.</p>
+    <div class="grid2">
+      <div class="form-group">
+        <label>Région</label>
+        <select id="region">
+          <option value="">-- Sélectionner --</option>
+          <option>Amérique du Nord (NA)</option>
+          <option>Amérique du Sud (SA)</option>
+          <option>Europe (EU)</option>
+          <option>Asie (AS)</option>
+          <option>Océanie (OCE)</option>
+        </select>
+        <div class="err" id="err-region">Choisissez une région.</div>
+      </div>
+      <div class="form-group">
+        <label>Bounty actuel</label>
+        <select id="bounty">
+          <option value="">-- Sélectionner --</option>
+          <option>0 – 500K</option>
+          <option>500K – 2M</option>
+          <option>2M – 5M</option>
+          <option>5M – 10M</option>
+          <option>10M+</option>
+        </select>
+        <div class="err" id="err-bounty">Choisissez votre bounty.</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Binôme (Pseudo partenaire)</label>
+      <input type="text" id="binome" placeholder="Pseudo de ton équipier"/>
+      <div class="err" id="err-binome">Entrez le pseudo de votre binôme.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="showReg('page-login');setProgress(1)"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn-primary" onclick="goStep3()">Continuer <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="page" id="page-build">
+    <div class="page-title">Ton Build PvP</div>
+    <p class="page-desc">Sélectionne ta race, ton épée, ton gun et ton Devil Fruit.</p>
+
+    <div class="build-card">
+      <div class="build-card-header">
+        <div class="build-icon"><i class="ti ti-shield"></i></div>
+        <div class="build-card-title">Race</div>
+        <span class="build-badge">Passive</span>
+      </div>
+      <select id="race">
+        <option value="">-- Choisir une race --</option>
+        <optgroup label="Races de base">
+          <option>Human (Humain)</option><option>Rabbit (Lapin)</option><option>Shark (Requin)</option><option>Sky (Céleste)</option><option>Angel (Ange)</option>
+        </optgroup>
+        <optgroup label="Races V4">
+          <option>Cyborg</option><option>Ghoul (Goule)</option>
+        </optgroup>
+      </select>
+      <div class="err" id="err-race">Choisissez une race.</div>
+    </div>
+
+    <div class="build-card">
+      <div class="build-card-header">
+        <div class="build-icon"><i class="ti ti-sword"></i></div>
+        <div class="build-card-title">Sword — Épée</div>
+        <span class="build-badge">Melee</span>
+      </div>
+      <select id="sword">
+        <option value="">-- Choisir une épée --</option>
+        <optgroup label="Legendary">
+          <option>True Triple Katana (TTK)</option><option>Yama</option><option>Tushita</option><option>Dark Blade (Sombre Lame)</option><option>Pole v2 (Bisento v2)</option><option>Dragon Heart</option><option>CDK (Cursed Dual Katana)</option>
+        </optgroup>
+        <optgroup label="Epic">
+          <option>Buddy Sword</option><option>Dragon Trident</option><option>Triple Katana</option><option>Serpent Bow</option>
+        </optgroup>
+        <optgroup label="Rare">
+          <option>Dual Headed Blade</option><option>Gravity Cane</option><option>Pole (1st form)</option><option>Cutlass</option>
+        </optgroup>
+      </select>
+      <div class="err" id="err-sword">Choisissez une épée.</div>
+    </div>
+
+    <div class="build-card">
+      <div class="build-card-header">
+        <div class="build-icon"><i class="ti ti-crosshair"></i></div>
+        <div class="build-card-title">Gun — Arme à feu</div>
+        <span class="build-badge">Ranged</span>
+      </div>
+      <select id="gun">
+        <option value="">-- Choisir un gun --</option>
+        <optgroup label="Legendary">
+          <option>Acidum Rifle</option><option>Twin Hooks</option><option>Skull Guitar</option>
+        </optgroup>
+        <optgroup label="Epic">
+          <option>Slingshot</option><option>Kabucha</option><option>Pipe</option>
+        </optgroup>
+        <optgroup label="Rare">
+          <option>Musket</option><option>Flintlock</option><option>Cannon</option><option>Refined Slingshot</option>
+        </optgroup>
+      </select>
+      <div class="err" id="err-gun">Choisissez un gun.</div>
+    </div>
+
+    <div class="build-card">
+      <div class="build-card-header">
+        <div class="build-icon"><i class="ti ti-cherry"></i></div>
+        <div class="build-card-title">Devil Fruit</div>
+        <span class="build-badge">Logia / Paramecia / Zoan</span>
+      </div>
+      <select id="fruit">
+        <option value="">-- Choisir un fruit --</option>
+        <optgroup label="Mythical">
+          <option>Dragon</option><option>Leopard</option><option>Phoenix</option><option>Venom</option><option>Control</option><option>Kitsune</option>
+        </optgroup>
+        <optgroup label="Legendary">
+          <option>Dough (Mochi)</option><option>Rumble</option><option>Blizzard</option><option>Shadow</option><option>Soul</option>
+        </optgroup>
+        <optgroup label="Rare">
+          <option>Rubber</option><option>Flame</option><option>Ice</option><option>Sand</option><option>Light</option><option>Dark</option><option>Magma</option><option>Quake</option><option>Buddha</option>
+        </optgroup>
+        <optgroup label="Uncommon">
+          <option>Spike</option><option>Spring</option><option>Bomb</option><option>Barrier</option><option>Smoke</option><option>Chop</option>
+        </optgroup>
+      </select>
+      <div class="err" id="err-fruit">Choisissez un Devil Fruit.</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="showReg('page-info');setProgress(2)"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn-primary" onclick="submitForm()"><i class="ti ti-check"></i> Confirmer l'inscription</button>
+    </div>
+  </div>
+
+  <!-- Step 4: confirmation -->
+  <div class="page" id="page-confirm">
+    <div class="confirm-hero">
+      <div class="confirm-check"><i class="ti ti-check"></i></div>
+      <div class="confirm-title">Inscription confirmée !</div>
+      <p class="confirm-sub">Ton équipe est enregistrée. Les autres joueurs ne voient pas tes informations privées.</p>
+    </div>
+    <div class="confirm-grid">
+      <div class="conf-item"><div class="conf-key">Joueur</div><div class="conf-val" id="conf-user">—</div></div>
+      <div class="conf-item"><div class="conf-key">Email</div><div class="conf-val" id="conf-email">—</div></div>
+      <div class="conf-item"><div class="conf-key">Binôme</div><div class="conf-val" id="conf-binome">—</div></div>
+      <div class="conf-item"><div class="conf-key">Région</div><div class="conf-val" id="conf-region">—</div></div>
+      <div class="conf-item"><div class="conf-key">Bounty</div><div class="conf-val" id="conf-bounty">—</div></div>
+      <div class="conf-item" style="border-color:var(--purple-dim)"><div class="conf-key">Race</div><div class="conf-val" id="conf-race">—</div></div>
+      <div class="conf-item" style="border-color:var(--purple-dim)"><div class="conf-key">Épée</div><div class="conf-val" id="conf-sword">—</div></div>
+      <div class="conf-item" style="border-color:var(--purple-dim)"><div class="conf-key">Gun</div><div class="conf-val" id="conf-gun">—</div></div>
+      <div class="conf-item" style="border-color:var(--purple-dim);grid-column:span 2"><div class="conf-key">Devil Fruit</div><div class="conf-val" id="conf-fruit">—</div></div>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <span class="status-tag"><span class="status-dot"></span>En attente des matchs</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VIEW: BRACKET PUBLIC ===== -->
+<div class="view view-full" id="view-bracket">
+  <div class="bracket-info">
+    <div class="bracket-info-title"><i class="ti ti-tournament"></i> Arbre du tournoi</div>
+    <p style="font-size:13px;color:var(--text-muted)">Clique sur un match pour voir le face-à-face des deux joueurs (pseudo, binôme et build uniquement).</p>
+  </div>
+
+  <div id="bracket-public-wrap">
+    <p style="text-align:center;color:var(--text-muted);font-size:13px;padding:40px">L'arbre du tournoi n'a pas encore été configuré par l'admin.</p>
+  </div>
+
+  <!-- Face-off modal area -->
+  <div id="faceoff-area" style="display:none;margin-top:28px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="page-title" style="font-size:16px">Face à face</div>
+      <button class="btn-ghost" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('faceoff-area').style.display='none'"><i class="ti ti-x"></i> Fermer</button>
+    </div>
+    <div class="faceoff-wrap" id="faceoff-content"></div>
+  </div>
+</div>
+
+<!-- ===== VIEW: ADMIN ===== -->
+<div class="view view-full" id="view-admin">
+
+  <!-- Admin Login -->
+  <div id="admin-login-wrap" class="admin-login">
+    <div class="page-title" style="text-align:center;margin-bottom:6px"><i class="ti ti-lock"></i> Accès Admin</div>
+    <p class="page-desc" style="text-align:center">Zone réservée à l'organisateur du tournoi.</p>
+    <div class="form-group">
+      <label>Mot de passe admin</label>
+      <input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/>
+      <div class="err" id="err-adminpw">Mot de passe incorrect.</div>
+    </div>
+    <button class="btn-primary" onclick="adminLogin()"><i class="ti ti-login"></i> Se connecter</button>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dash" style="display:none">
+    <div class="admin-header">
+      <div class="admin-title"><i class="ti ti-shield-check"></i> Panneau Admin</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="admin-badge"><i class="ti ti-alert-triangle"></i> Confidentiel</span>
+        <button class="btn-ghost" style="padding:6px 12px;font-size:12px" onclick="adminLogout()"><i class="ti ti-logout"></i> Déconnexion</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-cards" id="admin-stats"></div>
+
+    <!-- Participants table -->
+    <div class="section-block">
+      <div class="section-block-title"><i class="ti ti-users"></i> Participants inscrits</div>
+      <div style="overflow-x:auto">
+        <table class="participants-table" id="participants-tbl">
+          <thead><tr>
+            <th>#</th><th>Pseudo</th><th>Email</th><th>Binôme</th>
+            <th>Région</th><th>Bounty</th><th>Race</th><th>Épée</th><th>Gun</th><th>Fruit</th><th>Action</th>
+          </tr></thead>
+          <tbody id="participants-body"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <button class="export-btn" onclick="exportCSV()"><i class="ti ti-download"></i> Exporter CSV</button>
+        <button class="btn-danger" onclick="clearAll()"><i class="ti ti-trash"></i> Vider la liste</button>
+      </div>
+    </div>
+
+    <!-- Bracket Editor -->
+    <div class="section-block">
+      <div class="section-block-title"><i class="ti ti-tournament"></i> Éditeur de bracket</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Configure les matchs de chaque round. Sélectionne le vainqueur pour chaque match. Les joueurs ne voient que pseudo, binôme et build lors d'un face-à-face.</p>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="add-round-btn" onclick="addRound()"><i class="ti ti-plus"></i> Ajouter un round</button>
+        <button class="add-round-btn" onclick="addMatchToLastRound()"><i class="ti ti-plus"></i> Ajouter un match</button>
+        <button class="btn-primary" style="padding:8px 16px;font-size:12px" onclick="saveBracket()"><i class="ti ti-device-floppy"></i> Sauvegarder</button>
+      </div>
+      <div class="bracket-editor" id="bracket-editor"></div>
+    </div>
+  </div>
+</div>
+
+<div class="neon-line"></div>
+<footer>© 2025 Blox Fruits PvP Esport Tournament — Zone admin confidentielle</footer>
+
+<script>
+// ============================================================
+// CONSTANTS & STATE
+// ============================================================
+const ADMIN_PASSWORD = 'bloxadmin2025'; // ← change ici
+
+function getParticipants(){ try{ return JSON.parse(localStorage.getItem('bf_participants')||'[]') }catch(e){return[]} }
+function saveParticipants(arr){ localStorage.setItem('bf_participants', JSON.stringify(arr)) }
+function getBracket(){ try{ return JSON.parse(localStorage.getItem('bf_bracket')||'null') }catch(e){return null} }
+function saveBracketData(data){ localStorage.setItem('bf_bracket', JSON.stringify(data)) }
+
+// ============================================================
+// VIEW SWITCHING
+// ============================================================
+function switchView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))
+  const map={'view-register':0,'view-bracket':1,'view-admin':2}
+  document.querySelectorAll('.nav-btn')[map[id]]?.classList.add('active')
+  if(id==='view-bracket') renderPublicBracket()
+  if(id==='view-admin' && localStorage.getItem('bf_admin_auth')==='1') showAdminDash()
+}
+
+// ============================================================
+// REGISTRATION FLOW
+// ============================================================
+function showReg(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}) }
+function setProgress(step){
+  for(let i=1;i<=3;i++){
+    const dot=document.getElementById('pd'+i), lbl=document.getElementById('pl'+i)
+    dot.className='p-dot'; lbl.className='p-label'
+    if(i<step){dot.classList.add('done');dot.innerHTML='<i class="ti ti-check" style="font-size:12px"></i>'}
+    else if(i===step){dot.classList.add('active');dot.textContent=i;lbl.classList.add('active')}
+    else{dot.textContent=i}
+  }
+  const l1=document.getElementById('pline1'),l2=document.getElementById('pline2')
+  if(l1)l1.className='p-line'+(step>1?' done':'')
+  if(l2)l2.className='p-line'+(step>2?' done':'')
+}
+function showErr(id,show){ const el=document.getElementById(id); if(el)el.classList.toggle('show',show) }
+
+function goStep2(){
+  const u=document.getElementById('username').value.trim()
+  const e=document.getElementById('email').value.trim()
+  const p=document.getElementById('password').value
+  const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+  showErr('err-username',!u); showErr('err-email',!emailOk); showErr('err-password',p.length<6)
+  if(u&&emailOk&&p.length>=6){showReg('page-info');setProgress(2)}
+}
+
+function goStep3(){
+  const r=document.getElementById('region').value
+  const b=document.getElementById('bounty').value
+  const bi=document.getElementById('binome').value.trim()
+  showErr('err-region',!r); showErr('err-bounty',!b); showErr('err-binome',!bi)
+  if(r&&b&&bi){showReg('page-build');setProgress(3)}
+}
+
+function submitForm(){
+  const race=document.getElementById('race').value
+  const sword=document.getElementById('sword').value
+  const gun=document.getElementById('gun').value
+  const fruit=document.getElementById('fruit').value
+  showErr('err-race',!race); showErr('err-sword',!sword); showErr('err-gun',!gun); showErr('err-fruit',!fruit)
+  if(!race||!sword||!gun||!fruit)return
+
+  const player={
+    id: Date.now(),
+    username: document.getElementById('username').value.trim(),
+    email: document.getElementById('email').value.trim(),     // PRIVÉ
+    password: document.getElementById('password').value,       // PRIVÉ
+    region: document.getElementById('region').value,           // PRIVÉ
+    bounty: document.getElementById('bounty').value,           // PRIVÉ
+    binome: document.getElementById('binome').value.trim(),    // PUBLIC (face-à-face)
+    race, sword, gun, fruit                                    // PUBLIC (face-à-face)
+  }
+
+  // Check duplicate username
+  const participants=getParticipants()
+  if(participants.find(p=>p.username.toLowerCase()===player.username.toLowerCase())){
+    alert('Ce pseudo est déjà inscrit !'); return
+  }
+  participants.push(player)
+  saveParticipants(participants)
+
+  // Fill confirm
+  document.getElementById('conf-user').textContent=player.username
+  document.getElementById('conf-email').textContent=player.email
+  document.getElementById('conf-binome').textContent=player.binome
+  document.getElementById('conf-region').textContent=player.region
+  document.getElementById('conf-bounty').textContent=player.bounty
+  document.getElementById('conf-race').textContent=race
+  document.getElementById('conf-sword').textContent=sword
+  document.getElementById('conf-gun').textContent=gun
+  document.getElementById('conf-fruit').textContent=fruit
+
+  showReg('page-confirm')
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById('pd'+i)
+    d.className='p-dot done'; d.innerHTML='<i class="ti ti-check" style="font-size:12px"></i>'
+    const l=document.getElementById('pline'+i); if(l)l.className='p-line done'
+  }
+}
+
+// ============================================================
+// PUBLIC BRACKET
+// ============================================================
+function renderPublicBracket(){
+  const bracket=getBracket()
+  const wrap=document.getElementById('bracket-public-wrap')
+  if(!bracket||!bracket.rounds||bracket.rounds.length===0){
+    wrap.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;padding:40px">L\'arbre du tournoi n\'a pas encore été configuré.</p>'
+    return
+  }
+  const participants=getParticipants()
+  const getPlayer=name=>participants.find(p=>p.username===name)
+
+  let html='<div class="bracket-stage">'
+  bracket.rounds.forEach((round,ri)=>{
+    html+=`<div class="bracket-round"><div class="bracket-round-title">${round.name||'Round '+(ri+1)}</div><div class="bracket-matches">`
+    round.matches.forEach((match,mi)=>{
+      const p1=match.p1||null, p2=match.p2||null, winner=match.winner||null
+      const slot=idx=>{
+        const name=idx===1?p1:p2
+        if(!name) return `<div class="match-slot empty"><span>— TBD —</span></div>`
+        const isWinner=winner===name
+        const initials=name.substring(0,2).toUpperCase()
+        return `<div class="match-slot${isWinner?' winner':''}" style="cursor:pointer" onclick="showFaceoff('${escHtml(p1||'')}','${escHtml(p2||'')}')">
+          <div class="slot-avatar">${initials}</div>
+          <span>${escHtml(name)}</span>
+          ${isWinner?'<i class="ti ti-crown" style="margin-left:auto;font-size:12px;color:var(--warn)"></i>':''}
+        </div>`
+      }
+      html+=`<div class="match-card"><span class="match-num">M${mi+1}</span>${slot(1)}${slot(2)}</div>`
+    })
+    html+='</div></div>'
+  })
+  html+='</div>'
+  wrap.innerHTML=html
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+
+function showFaceoff(name1,name2){
+  if(!name1&&!name2)return
+  const participants=getParticipants()
+  const fa=document.getElementById('faceoff-area')
+  const fc=document.getElementById('faceoff-content')
+  fa.style.display='block'
+  fa.scrollIntoView({behavior:'smooth',block:'start'})
+
+  const card=name=>{
+    if(!name)return `<div class="faceoff-card"><div class="faceoff-name" style="color:var(--text-muted)">TBD</div></div>`
+    const p=participants.find(x=>x.username===name)
+    if(!p)return `<div class="faceoff-card"><div class="faceoff-name">${escHtml(name)}</div><div class="faceoff-sub">Infos non disponibles</div></div>`
+    return `<div class="faceoff-card ${name===name1?'player1':'player2'}">
+      <div class="faceoff-name">${escHtml(p.username)}</div>
+      <div class="faceoff-sub">Binôme : ${escHtml(p.binome)}</div>
+      <div class="faceoff-build">
+        <div class="faceoff-row"><span>Race</span><span>${escHtml(p.race)}</span></div>
+        <div class="faceoff-row"><span>Épée</span><span>${escHtml(p.sword)}</span></div>
+        <div class="faceoff-row"><span>Gun</span><span>${escHtml(p.gun)}</span></div>
+        <div class="faceoff-row"><span>Fruit</span><span>${escHtml(p.fruit)}</span></div>
+      </div>
+    </div>`
+  }
+  fc.innerHTML=card(name1)+'<div class="vs-badge">VS</div>'+card(name2)
+}
+
+// ============================================================
+// ADMIN AUTH
+// ============================================================
+function adminLogin(){
+  const pw=document.getElementById('admin-pw').value
+  if(pw===ADMIN_PASSWORD){
+    localStorage.setItem('bf_admin_auth','1')
+    document.getElementById('err-adminpw').classList.remove('show')
+    showAdminDash()
+  } else {
+    document.getElementById('err-adminpw').classList.add('show')
+  }
+}
+function adminLogout(){
+  localStorage.removeItem('bf_admin_auth')
+  document.getElementById('admin-dash').style.display='none'
+  document.getElementById('admin-login-wrap').style.display='block'
+  document.getElementById('admin-pw').value=''
+}
+function showAdminDash(){
+  document.getElementById('admin-login-wrap').style.display='none'
+  document.getElementById('admin-dash').style.display='block'
+  renderAdminStats()
+  renderParticipantsTable()
+  renderBracketEditor()
+}
+
+// ============================================================
+// ADMIN STATS
+// ============================================================
+function renderAdminStats(){
+  const p=getParticipants()
+  const regions=[...new Set(p.map(x=>x.region).filter(Boolean))]
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${p.length}</div><div class="stat-lbl">Inscrits</div></div>
+    <div class="stat-card"><div class="stat-num">${regions.length}</div><div class="stat-lbl">Régions</div></div>
+    <div class="stat-card"><div class="stat-num">${Math.floor(p.length/2)}</div><div class="stat-lbl">Équipes</div></div>
+  `
+}
+
+// ============================================================
+// PARTICIPANTS TABLE
+// ============================================================
+function renderParticipantsTable(){
+  const p=getParticipants()
+  const tbody=document.getElementById('participants-body')
+  if(p.length===0){
+    tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:24px">Aucun participant inscrit.</td></tr>'
+    return
+  }
+  tbody.innerHTML=p.map((pl,i)=>`
+    <tr>
+      <td style="color:var(--text-muted)">${i+1}</td>
+      <td><strong>${escHtml(pl.username)}</strong></td>
+      <td style="color:var(--text-muted);font-size:12px">${escHtml(pl.email)}</td>
+      <td>${escHtml(pl.binome)}</td>
+      <td><span class="pill">${escHtml(pl.region||'—')}</span></td>
+      <td style="font-size:12px">${escHtml(pl.bounty||'—')}</td>
+      <td style="font-size:12px">${escHtml(pl.race)}</td>
+      <td style="font-size:12px">${escHtml(pl.sword)}</td>
+      <td style="font-size:12px">${escHtml(pl.gun)}</td>
+      <td style="font-size:12px">${escHtml(pl.fruit)}</td>
+      <td><button class="btn-danger" onclick="deleteParticipant(${pl.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>
+  `).join('')
+}
+
+function deleteParticipant(id){
+  if(!confirm('Supprimer ce joueur ?'))return
+  const p=getParticipants().filter(x=>x.id!==id)
+  saveParticipants(p)
+  renderParticipantsTable(); renderAdminStats()
+}
+
+function clearAll(){
+  if(!confirm('Supprimer TOUS les participants ? Cette action est irréversible.'))return
+  saveParticipants([])
+  renderParticipantsTable(); renderAdminStats()
+}
+
+function exportCSV(){
+  const p=getParticipants()
+  if(p.length===0){alert('Aucun participant à exporter.');return}
+  const headers=['#','Pseudo','Email','Binôme','Région','Bounty','Race','Épée','Gun','Fruit']
+  const rows=p.map((pl,i)=>[i+1,pl.username,pl.email,pl.binome,pl.region,pl.bounty,pl.race,pl.sword,pl.gun,pl.fruit])
+  const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n')
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'})
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='participants_bloxfruits.csv'; a.click()
+}
+
+// ============================================================
+// BRACKET EDITOR
+// ============================================================
+let bracketData = getBracket() || { rounds: [] }
+
+function renderBracketEditor(){
+  bracketData = getBracket() || { rounds: [] }
+  const participants=getParticipants()
+  const playerOptions='<option value="">— TBD —</option>'+participants.map(p=>`<option>${escHtml(p.username)}</option>`).join('')
+  const editor=document.getElementById('bracket-editor')
+
+  if(bracketData.rounds.length===0){
+    editor.innerHTML='<p style="color:var(--text-muted);font-size:13px">Aucun round. Clique sur "Ajouter un round".</p>'
+    return
+  }
+  let html='<div style="display:flex;align-items:flex-start">'
+  bracketData.rounds.forEach((round,ri)=>{
+    html+=`<div class="admin-round">
+      <div class="admin-round-title" contenteditable="true" onblur="renameRound(${ri},this.textContent)" style="cursor:text">${escHtml(round.name||'Round '+(ri+1))}</div>`
+    round.matches.forEach((match,mi)=>{
+      const sel=(field,val)=>`<select onchange="updateMatch(${ri},${mi},'${field}',this.value)">${playerOptions.replace(`>${escHtml(val)}<`,` selected>${escHtml(val)}<`)}</select>`
+      const winBtn=(name)=>name?`<button class="win-btn${match.winner===name?' selected':''}" onclick="setWinner(${ri},${mi},'${escHtml(name)}')"><i class="ti ti-crown" style="font-size:11px"></i></button>`:'<button class="win-btn" disabled style="opacity:.3"><i class="ti ti-crown" style="font-size:11px"></i></button>'
+      html+=`<div class="admin-match">
+        <div class="admin-slot"><span class="slot-label">P1</span>${sel('p1',match.p1||'')}${winBtn(match.p1)}</div>
+        <div class="admin-slot"><span class="slot-label">P2</span>${sel('p2',match.p2||'')}${winBtn(match.p2)}</div>
+      </div>`
+    })
+    html+=`<div style="display:flex;gap:6px;margin-top:6px">
+      <button class="add-round-btn" style="flex:1;font-size:11px" onclick="addMatchToRound(${ri})"><i class="ti ti-plus"></i> Match</button>
+      <button class="btn-danger" style="padding:6px 10px;font-size:11px" onclick="removeRound(${ri})"><i class="ti ti-trash"></i></button>
+    </div></div>`
+  })
+  html+='</div>'
+  editor.innerHTML=html
+}
+
+function addRound(){
+  bracketData.rounds.push({name:'Round '+(bracketData.rounds.length+1),matches:[{p1:'',p2:'',winner:''}]})
+  renderBracketEditor()
+}
+function addMatchToLastRound(){
+  if(bracketData.rounds.length===0){addRound();return}
+  bracketData.rounds[bracketData.rounds.length-1].matches.push({p1:'',p2:'',winner:''})
+  renderBracketEditor()
+}
+function addMatchToRound(ri){
+  bracketData.rounds[ri].matches.push({p1:'',p2:'',winner:''})
+  renderBracketEditor()
+}
+function removeRound(ri){
+  if(!confirm('Supprimer ce round ?'))return
+  bracketData.rounds.splice(ri,1)
+  renderBracketEditor()
+}
+function updateMatch(ri,mi,field,val){
+  bracketData.rounds[ri].matches[mi][field]=val
+  // clear winner if player changed
+  if(field==='p1'&&bracketData.rounds[ri].matches[mi].winner===bracketData.rounds[ri].matches[mi].p1)bracketData.rounds[ri].matches[mi].winner=''
+}
+function setWinner(ri,mi,name){
+  bracketData.rounds[ri].matches[mi].winner = bracketData.rounds[ri].matches[mi].winner===name?'':name
+  renderBracketEditor()
+}
+function renameRound(ri,name){
+  bracketData.rounds[ri].name=name.trim()||'Round '+(ri+1)
+}
+function saveBracket(){
+  saveBracketData(bracketData)
+  const btn=event.currentTarget
+  const orig=btn.innerHTML
+  btn.innerHTML='<i class="ti ti-check"></i> Sauvegardé !'
+  btn.style.background='rgba(52,211,153,.2)'
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background=''},2000)
+}
+
+// Auto-auth check on load
+if(localStorage.getItem('bf_admin_auth')==='1'){
+  // keep login form shown until admin navigates there
+}
+</script>
+</body>
+</html>
