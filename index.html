@@ -308,7 +308,7 @@ footer{width:100%;text-align:center;padding:20px;font-size:11px;color:var(--text
         <optgroup label="Races de base"><option>Human (Humain)</option><option>Rabbit (Lapin)</option><option>Shark (Requin)</option><option>Sky (Céleste)</option><option>Angel (Ange)</option></optgroup>
         <optgroup label="Races V4"><option>Cyborg</option><option>Ghoul (Goule)</option></optgroup>
       </select>
-      <div class="err" id="err-race">Choisissez une race .</div>
+      <div class="err" id="err-race">Choisissez une race.</div>
     </div>
 
     <div class="build-card">
@@ -473,7 +473,44 @@ footer{width:100%;text-align:center;padding:20px;font-size:11px;color:var(--text
       </div>
       <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
         <button class="export-btn" onclick="exportCSV()"><i class="ti ti-download"></i> Exporter CSV</button>
+        <button class="export-btn" onclick="exportJSON()" style="border-color:rgba(167,139,250,.3);color:var(--purple-light)"><i class="ti ti-database-export"></i> Backup JSON</button>
         <button class="btn-danger" onclick="clearAll()"><i class="ti ti-trash"></i> Vider la liste</button>
+      </div>
+    </div>
+
+    <!-- BACKUP & RESTORE -->
+    <div class="section-block">
+      <div class="section-block-title"><i class="ti ti-database"></i> Sauvegarde & Restauration</div>
+      <div id="storage-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--danger)">
+        <i class="ti ti-alert-triangle"></i> <strong>Attention :</strong> Le stockage local est presque plein. Exporte tes données maintenant !
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Dernier backup auto</div>
+          <div id="last-backup-time" style="font-size:13px;color:var(--text);font-weight:600">Jamais</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Auto-backup</div>
+          <select class="setting-input" id="backup-interval" onchange="setAutoBackup(this.value)" style="font-size:12px;padding:6px 10px">
+            <option value="0">Désactivé</option>
+            <option value="5">Toutes les 5 min</option>
+            <option value="15" selected>Toutes les 15 min</option>
+            <option value="30">Toutes les 30 min</option>
+            <option value="60">Toutes les heures</option>
+          </select>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Restaurer depuis un fichier JSON</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase" id="import-label">
+            <i class="ti ti-database-import" style="font-size:16px;color:var(--purple-light)"></i>
+            Importer backup JSON
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)"/>
+          </label>
+          <div id="import-status" style="font-size:12px;color:var(--text-muted)"></div>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px"><i class="ti ti-info-circle"></i> Le fichier JSON remplace les données actuelles. Exporte d'abord si nécessaire.</p>
       </div>
     </div>
 
@@ -670,6 +707,7 @@ async function submitForm(){
   const participants=getParticipants()
   participants.push(player)
   saveParticipants(participants)
+  autoBackupOnRegistration()
 
   // Fill confirm
   document.getElementById('conf-user').textContent=player.username
@@ -825,6 +863,15 @@ function showAdminDash(){
   renderAdminStats()
   renderParticipantsTable()
   renderBracketEditor()
+  updateBackupTime()
+  checkStorageUsage()
+  // Restore auto-backup interval if set
+  const savedInterval = localStorage.getItem('bf_backup_interval')
+  if(savedInterval && parseInt(savedInterval) > 0){
+    const sel = document.getElementById('backup-interval')
+    if(sel) sel.value = savedInterval
+    setAutoBackup(savedInterval)
+  }
 }
 
 // ============================================================
@@ -912,6 +959,105 @@ function exportCSV(){
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'})
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='participants_bloxfruits.csv'; a.click()
   showToast('Export CSV téléchargé !','success')
+}
+
+// ============================================================
+// BACKUP & RESTORE
+// ============================================================
+let autoBackupTimer = null
+
+function exportJSON(){
+  const data = {
+    participants: getParticipants(),
+    bracket: getBracket(),
+    settings: getSettings(),
+    exportedAt: new Date().toISOString(),
+    version: 3
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'})
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = 'backup_bloxfruits_' + new Date().toISOString().slice(0,10) + '.json'
+  a.click()
+  const now = new Date().toLocaleString('fr-FR')
+  localStorage.setItem('bf_last_backup', now)
+  updateBackupTime()
+  showToast('Backup JSON téléchargé !', 'success')
+}
+
+function importJSON(input){
+  const file = input.files[0]
+  if(!file) return
+  const status = document.getElementById('import-status')
+  status.textContent = 'Lecture du fichier...'
+  const reader = new FileReader()
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result)
+      if(!data.participants) throw new Error('Format invalide')
+      if(!confirm('Remplacer toutes les données actuelles par ce backup ? (' + data.participants.length + ' joueurs)')) {
+        status.textContent = ''; input.value=''; return
+      }
+      saveParticipants(data.participants)
+      if(data.bracket) saveBracketData(data.bracket)
+      if(data.settings) saveSettings_(data.settings)
+      status.innerHTML = '<span style="color:var(--success)"><i class="ti ti-check"></i> ' + data.participants.length + ' joueurs restaurés !</span>'
+      showToast('Backup restauré avec succès !', 'success')
+      renderAdminStats()
+      renderParticipantsTable()
+      renderBracketEditor()
+      loadSettings()
+      input.value = ''
+    } catch(err) {
+      status.innerHTML = '<span style="color:var(--danger)"><i class="ti ti-x"></i> Fichier invalide.</span>'
+      showToast('Fichier JSON invalide.', 'error')
+    }
+  }
+  reader.readAsText(file)
+}
+
+function updateBackupTime(){
+  const el = document.getElementById('last-backup-time')
+  if(!el) return
+  const t = localStorage.getItem('bf_last_backup')
+  el.textContent = t || 'Jamais'
+  el.style.color = t ? 'var(--success)' : 'var(--danger)'
+}
+
+function setAutoBackup(minutes){
+  clearInterval(autoBackupTimer)
+  localStorage.setItem('bf_backup_interval', minutes)
+  if(parseInt(minutes) > 0){
+    autoBackupTimer = setInterval(() => {
+      const p = getParticipants()
+      if(p.length > 0) {
+        exportJSON()
+        showToast('Auto-backup effectué (' + p.length + ' joueurs)', 'info')
+      }
+    }, parseInt(minutes) * 60 * 1000)
+    showToast('Auto-backup activé toutes les ' + minutes + ' min', 'success')
+  } else {
+    showToast('Auto-backup désactivé', 'info')
+  }
+}
+
+function checkStorageUsage(){
+  try {
+    const used = JSON.stringify(localStorage).length
+    const max = 5 * 1024 * 1024 // ~5MB
+    const pct = (used / max) * 100
+    const warn = document.getElementById('storage-warning')
+    if(warn) warn.style.display = pct > 70 ? 'block' : 'none'
+  } catch(e){}
+}
+
+function autoBackupOnRegistration(){
+  const p = getParticipants()
+  if(p.length > 0 && p.length % 5 === 0) {
+    // Auto-export every 5 registrations
+    exportJSON()
+    showToast('Backup automatique effectué (' + p.length + ' inscrits)', 'info')
+  }
 }
 
 // ============================================================
