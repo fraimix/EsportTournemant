@@ -482,9 +482,9 @@ footer{width:100%;text-align:center;padding:20px;font-size:11px;color:var(--text
       <div class="section-block-title"><i class="ti ti-tournament"></i> Éditeur de bracket</div>
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Glisse les joueurs dans les matchs. Clique 👑 pour désigner le vainqueur. Le bracket public se met à jour après sauvegarde.</p>
       <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="add-round-btn" onclick="addRound()"><i class="ti ti-plus"></i> Ajouter round</button>
-        <button class="add-round-btn" onclick="addMatchToLastRound()"><i class="ti ti-plus"></i> Ajouter match</button>
-        <button class="btn-primary" style="padding:8px 16px;font-size:12px;flex:none" onclick="saveBracket()"><i class="ti ti-device-floppy"></i> Sauvegarder bracket</button>
+        <button class="add-round-btn" id="btn-add-round"><i class="ti ti-plus"></i> Ajouter round</button>
+        <button class="add-round-btn" id="btn-add-match"><i class="ti ti-plus"></i> Ajouter match</button>
+        <button class="btn-primary" style="padding:8px 16px;font-size:12px;flex:none" id="btn-save-bracket"><i class="ti ti-device-floppy"></i> Sauvegarder bracket</button>
       </div>
       <div class="bracket-editor" id="bracket-editor"></div>
     </div>
@@ -999,6 +999,9 @@ function saveBracket(){
 if(localStorage.getItem('bf_admin_ok')==='1' && document.getElementById('view-admin').classList.contains('active')){
   showAdminDash()
 }
+document.getElementById('btn-add-round')?.addEventListener('click', addRound)
+document.getElementById('btn-add-match')?.addEventListener('click', addMatchToLastRound)
+document.getElementById('btn-save-bracket')?.addEventListener('click', saveBracket)
 checkRegistrationStatus()
 </script>
 </body>
