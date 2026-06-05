@@ -1,7 +1,7 @@
 {
-  "name": "EsportTournemant",
+  "name": "bloxfruits-tournament",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx serve@14 . --listen $PORT --no-clipboard"
+    "start": "npx serve@14 . --listen 3000 --no-clipboard"
   }
 }
