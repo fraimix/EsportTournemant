@@ -583,10 +583,14 @@ function propagate(rounds){
     for(let mi=0;mi<cur.matches.length;mi+=2){
       const nm=next.matches[Math.floor(mi/2)]; if(!nm)continue
       const m1=cur.matches[mi],m2=cur.matches[mi+1]
+      // Propagate winners forward
       if(m1?.winner) nm.p1=m1.winner
       if(m2?.winner) nm.p2=m2.winner
-      if(nm.p1&&!nm.p2){nm.winner=nm.p1;nm.score1=1;nm.score2=0}
-      else if(!nm.p1&&nm.p2){nm.winner=nm.p2;nm.score1=0;nm.score2=1}
+      // Auto-advance ONLY for true byes (both slots empty = padding match)
+      const m1IsBye = m1 && !m1.p1 && !m1.p2
+      const m2IsBye = m2 && !m2.p1 && !m2.p2
+      if(m1IsBye && nm.p2 && !nm.p1 && !nm.winner){ nm.winner=nm.p2; nm.score1=0; nm.score2=1 }
+      else if(m2IsBye && nm.p1 && !nm.p2 && !nm.winner){ nm.winner=nm.p1; nm.score1=1; nm.score2=0 }
     }
   }
 }
